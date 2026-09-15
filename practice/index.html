@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ten Problems, Four Languages</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F2F3F7;
+  --panel:#FFFFFF;
+  --panel-2:#E9EBF2;
+  --ink:#171A24;
+  --ink-2:#565D72;
+  --ink-3:#848CA3;
+  --line:#D6DAE6;
+  --accent:#4B40D4;
+  --accent-soft:#E6E4FB;
+  --pass:#0E7050;
+  --pass-soft:#DCF0E7;
+  --fail:#B32D2E;
+  --fail-soft:#FBE3E2;
+  --easy:#0E7050;
+  --medium:#A05C00;
+  --code-bg:#F7F8FC;
+  --radius:10px;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:"Space Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#131725;
+    --panel:#1B2032;
+    --panel-2:#232940;
+    --ink:#E7EAF3;
+    --ink-2:#A2AAC4;
+    --ink-3:#7C859F;
+    --line:#2E3550;
+    --accent:#9A91FF;
+    --accent-soft:#2A2B54;
+    --pass:#5CD6A8;
+    --pass-soft:#16362C;
+    --fail:#FF8F85;
+    --fail-soft:#3A1F22;
+    --easy:#5CD6A8;
+    --medium:#E8B45C;
+    --code-bg:#151A29;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#131725;
+  --panel:#1B2032;
+  --panel-2:#232940;
+  --ink:#E7EAF3;
+  --ink-2:#A2AAC4;
+  --ink-3:#7C859F;
+  --line:#2E3550;
+  --accent:#9A91FF;
+  --accent-soft:#2A2B54;
+  --pass:#5CD6A8;
+  --pass-soft:#16362C;
+  --fail:#FF8F85;
+  --fail-soft:#3A1F22;
+  --easy:#5CD6A8;
+  --medium:#E8B45C;
+  --code-bg:#151A29;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:16px;
+  line-height:1.55;
+  -webkit-text-size-adjust:100%;
+}
+img{max-width:100%}
+button{font-family:inherit;font-size:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.wrap{max-width:960px;margin:0 auto;padding:0 16px 64px}
+
+/* ---------- header ---------- */
+header{
+  padding:28px 0 18px;
+  border-bottom:1px solid var(--line);
+  margin-bottom:22px;
+}
+h1{
+  font-size:clamp(28px,7vw,42px);
+  line-height:1.05;
+  letter-spacing:-.025em;
+  font-weight:700;
+  margin:0 0 6px;
+}
+h1 .thin{font-weight:400;color:var(--ink-2)}
+.sub{margin:0;color:var(--ink-2);font-size:15px;max-width:52ch}
+
+.langbar{display:flex;gap:6px;margin-top:18px;flex-wrap:wrap}
+.langbar button{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:7px 14px;
+  font-weight:500;
+  font-size:14px;
+  transition:background .12s,border-color .12s;
+}
+.langbar button[aria-pressed="true"]{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#fff;
+}
+:root[data-theme="dark"] .langbar button[aria-pressed="true"],
+html:not([data-theme="light"]) .langbar button[aria-pressed="true"]{color:#14162A}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]) .langbar button[aria-pressed="true"]{color:#fff}
+}
+.meter{display:flex;align-items:baseline;gap:8px;margin-top:14px;color:var(--ink-2);font-size:14px}
+.meter b{font-family:var(--mono);color:var(--ink);font-weight:600}
+
+/* ---------- index ---------- */
+.group{margin:0 0 26px}
+.group h2{
+  font-size:14px;
+  font-weight:600;
+  margin:0 0 10px;
+  color:var(--ink-2);
+  display:flex;align-items:center;gap:10px;
+}
+.group h2::after{content:"";flex:1;height:1px;background:var(--line)}
+.card{
+  display:block;width:100%;text-align:left;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:14px 16px;
+  margin-bottom:8px;
+}
+.card:hover{border-color:var(--accent)}
+.card .top{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.card .name{font-weight:600;font-size:17px;letter-spacing:-.01em}
+.diff{font-size:12px;font-weight:600;font-family:var(--mono);white-space:nowrap}
+.diff.Easy{color:var(--easy)}
+.diff.Medium{color:var(--medium)}
+.strip{display:flex;gap:5px;margin-top:10px;align-items:center}
+.cell{
+  font-family:var(--mono);font-size:10px;font-weight:600;
+  padding:2px 6px;border-radius:4px;
+  border:1px solid var(--line);color:var(--ink-3);
+}
+.cell.on{background:var(--pass-soft);border-color:transparent;color:var(--pass)}
+.card .blurb{margin:6px 0 0;color:var(--ink-2);font-size:14px}
+
+/* ---------- detail ---------- */
+.back{
+  background:none;border:none;padding:6px 0;margin:0 0 12px;
+  color:var(--accent);font-weight:500;font-size:14px;
+}
+.crumbs{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--ink-2);margin-bottom:6px}
+.tag{
+  font-family:var(--mono);font-size:11px;font-weight:600;
+  background:var(--accent-soft);color:var(--accent);
+  padding:3px 8px;border-radius:5px;
+}
+h3{font-size:24px;margin:0 0 12px;letter-spacing:-.02em}
+.prose{max-width:66ch;color:var(--ink);font-size:15.5px}
+.prose p{margin:0 0 12px}
+.prose code{font-family:var(--mono);font-size:.88em;background:var(--panel-2);padding:1px 5px;border-radius:4px}
+.ex{
+  background:var(--panel);border:1px solid var(--line);
+  border-left:3px solid var(--accent);
+  border-radius:0 var(--radius) var(--radius) 0;
+  padding:10px 14px;margin:0 0 8px;
+  font-family:var(--mono);font-size:13px;overflow-x:auto;
+}
+.ex div{white-space:pre-wrap;word-break:break-word}
+.ex .note{font-family:var(--sans);color:var(--ink-2);font-size:13px;margin-top:4px}
+ul.cons{margin:0 0 18px;padding-left:20px;color:var(--ink-2);font-size:14px}
+ul.cons code{font-family:var(--mono);font-size:.9em}
+
+details{
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:var(--panel);margin:0 0 14px;overflow:hidden;
+}
+details>summary{
+  cursor:pointer;padding:11px 14px;font-weight:600;font-size:14px;
+  list-style:none;display:flex;justify-content:space-between;align-items:center;gap:8px;
+}
+details>summary::-webkit-details-marker{display:none}
+details>summary::after{content:"+";font-family:var(--mono);color:var(--ink-3);font-weight:400}
+details[open]>summary::after{content:"–"}
+details .body{padding:0 14px 14px;border-top:1px solid var(--line);padding-top:12px}
+.hint{font-size:14.5px;color:var(--ink-2);margin:0 0 10px;padding-left:14px;border-left:2px solid var(--line)}
+
+/* ---------- editor ---------- */
+.edwrap{margin:20px 0 0}
+.edhead{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:12px;font-family:var(--mono);color:var(--ink-3);
+  padding:8px 12px;background:var(--panel-2);
+  border:1px solid var(--line);border-bottom:none;
+  border-radius:var(--radius) var(--radius) 0 0;
+}
+textarea{
+  display:block;width:100%;min-height:300px;
+  font-family:var(--mono);font-size:13px;line-height:1.65;
+  padding:14px;
+  background:var(--code-bg);color:var(--ink);
+  border:1px solid var(--line);border-radius:0 0 var(--radius) var(--radius);
+  resize:vertical;white-space:pre;overflow-wrap:normal;overflow-x:auto;
+  tab-size:4;
+}
+textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.btn{
+  border:1px solid var(--line);background:var(--panel);
+  border-radius:8px;padding:9px 15px;font-weight:600;font-size:14px;
+}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+html:not([data-theme="light"]) .btn.primary{color:#14162A}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]) .btn.primary{color:#fff}
+}
+.btn:disabled{opacity:.5;cursor:default}
+
+/* ---------- results ---------- */
+.results{margin-top:16px}
+.verdict{
+  font-weight:600;font-size:15px;padding:11px 14px;border-radius:var(--radius);
+  margin-bottom:10px;
+}
+.verdict.ok{background:var(--pass-soft);color:var(--pass)}
+.verdict.no{background:var(--fail-soft);color:var(--fail)}
+.verdict.info{background:var(--panel-2);color:var(--ink-2)}
+.case{
+  border:1px solid var(--line);border-radius:8px;
+  padding:9px 12px;margin-bottom:6px;background:var(--panel);
+  font-family:var(--mono);font-size:12.5px;overflow-x:auto;
+}
+.case .row{white-space:pre-wrap;word-break:break-word;color:var(--ink-2)}
+.case .row b{color:var(--ink);font-weight:600}
+.case .mark{font-weight:600;margin-bottom:3px}
+.case.ok .mark{color:var(--pass)}
+.case.no .mark{color:var(--fail)}
+pre.out{
+  font-family:var(--mono);font-size:12px;line-height:1.6;
+  background:var(--code-bg);border:1px solid var(--line);
+  border-radius:var(--radius);padding:12px;overflow-x:auto;margin:0;
+}
+.note{font-size:13.5px;color:var(--ink-2);margin:0 0 10px}
+.navpair{display:flex;justify-content:space-between;gap:8px;margin-top:28px;padding-top:18px;border-top:1px solid var(--line)}
+footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);color:var(--ink-3);font-size:13px}
+.hidden{display:none !important}
+@media (prefers-reduced-motion: reduce){*{transition:none !important;animation:none !important}}
+@media (min-width:860px){
+  textarea{min-height:420px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Ten problems,<br><span class="thin">four languages.</span></h1>
+  <p class="sub">The same interview patterns, written four ways. Pick a language, solve it, then solve it again in another one — that is where the pattern actually sticks.</p>
+  <div class="langbar" id="langbar" role="group" aria-label="Language"></div>
+  <div class="meter" id="meter"></div>
+</header>
+
+<main id="index"></main>
+<main id="detail" class="hidden"></main>
+
+<footer>
+  Your code is saved in this browser only. JavaScript runs here instantly; Python can run here too once you load the runtime; C++ and Java come with a complete test file you can compile locally.
+</footer>
+</div>
+
+<script>
+/* =========================================================
+   Problem set — 10 problems across 10 interview patterns
+   ========================================================= */
+const PROBLEMS = [
+{
+  id:"two-sum", title:"Two Sum", diff:"Easy", pattern:"Hash map",
+  blurb:"Trade memory for time: one pass, one lookup table.",
+  fn:"twoSum", ret:"int[]", cmp:"pair",
+  params:[{name:"nums",type:"int[]"},{name:"target",type:"int"}],
+  desc:"<p>Given an array of integers <code>nums</code> and an integer <code>target</code>, return the indices of the two numbers that add up to <code>target</code>.</p><p>Each input has exactly one solution, and you may not use the same element twice. The order of the two indices does not matter.</p>",
+  examples:[
+    {in:"nums = [2,7,11,15], target = 9", out:"[0,1]", note:"nums[0] + nums[1] == 9"},
+    {in:"nums = [3,2,4], target = 6", out:"[1,2]"}
+  ],
+  constraints:["<code>2 &lt;= nums.length &lt;= 10^4</code>","<code>-10^9 &lt;= nums[i], target &lt;= 10^9</code>","Exactly one valid answer exists."],
+  hints:["The brute force is two nested loops. What are you actually asking on the inner loop? \"Have I seen target - nums[i] already?\"",
+         "A hash map answers \"have I seen it\" in O(1). Store value → index as you go.",
+         "Check the map before inserting the current number, or a number like 3 in [3,3] will match itself."],
+  tests:[
+    {args:[[2,7,11,15],9], expected:[0,1]},
+    {args:[[3,2,4],6], expected:[1,2]},
+    {args:[[3,3],6], expected:[0,1]},
+    {args:[[-1,-2,-3,-4,-5],-8], expected:[2,4]}
+  ],
+  sols:{
+py:`class Solution:
+    def twoSum(self, nums, target):
+        seen = {}
+        for i, n in enumerate(nums):
+            if target - n in seen:
+                return [seen[target - n], i]
+            seen[n] = i
+        return []`,
+cpp:`class Solution {
+public:
+    vector<int> twoSum(vector<int>& nums, int target) {
+        unordered_map<int, int> seen;
+        for (int i = 0; i < (int)nums.size(); i++) {
+            auto it = seen.find(target - nums[i]);
+            if (it != seen.end()) return {it->second, i};
+            seen[nums[i]] = i;
+        }
+        return {};
+    }
+};`,
+java:`class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        Map<Integer, Integer> seen = new HashMap<>();
+        for (int i = 0; i < nums.length; i++) {
+            Integer j = seen.get(target - nums[i]);
+            if (j != null) return new int[]{j, i};
+            seen.put(nums[i], i);
+        }
+        return new int[]{};
+    }
+}`,
+js:`var twoSum = function(nums, target) {
+    const seen = new Map();
+    for (let i = 0; i < nums.length; i++) {
+        if (seen.has(target - nums[i])) return [seen.get(target - nums[i]), i];
+        seen.set(nums[i], i);
+    }
+    return [];
+};`}
+},
+{
+  id:"valid-parentheses", title:"Valid Parentheses", diff:"Easy", pattern:"Stack",
+  blurb:"Nesting is a stack. Close what you opened, most recent first.",
+  fn:"isValid", ret:"bool",
+  params:[{name:"s",type:"string"}],
+  desc:"<p>Given a string <code>s</code> containing only the characters <code>()[]{}</code>, decide whether the brackets are valid.</p><p>Brackets are valid when every opener is closed by the matching closer, and closers appear in the right order.</p>",
+  examples:[
+    {in:'s = "()[]{}"', out:"true"},
+    {in:'s = "([)]"', out:"false", note:"The ( is closed by ] instead of )"}
+  ],
+  constraints:["<code>0 &lt;= s.length &lt;= 10^4</code>","<code>s</code> contains only bracket characters."],
+  hints:["The only thing that can legally close a bracket is the most recently opened one still waiting. That is the definition of a stack.",
+         "Push openers. On a closer, pop and compare — if the stack is empty or the pop does not match, fail immediately.",
+         "Do not forget the end: leftover openers on the stack mean the string is not valid."],
+  tests:[
+    {args:["()"], expected:true},
+    {args:["()[]{}"], expected:true},
+    {args:["(]"], expected:false},
+    {args:["([)]"], expected:false},
+    {args:["{[]}"], expected:true},
+    {args:["("], expected:false},
+    {args:[""], expected:true}
+  ],
+  sols:{
+py:`class Solution:
+    def isValid(self, s):
+        pairs = {")": "(", "]": "[", "}": "{"}
+        stack = []
+        for ch in s:
+            if ch in pairs:
+                if not stack or stack.pop() != pairs[ch]:
+                    return False
+            else:
+                stack.append(ch)
+        return not stack`,
+cpp:`class Solution {
+public:
+    bool isValid(string& s) {
+        unordered_map<char, char> pairs{{')', '('}, {']', '['}, {'}', '{'}};
+        vector<char> st;
+        for (char c : s) {
+            if (pairs.count(c)) {
+                if (st.empty() || st.back() != pairs[c]) return false;
+                st.pop_back();
+            } else {
+                st.push_back(c);
+            }
+        }
+        return st.empty();
+    }
+};`,
+java:`class Solution {
+    public boolean isValid(String s) {
+        Map<Character, Character> pairs = new HashMap<>();
+        pairs.put(')', '(');
+        pairs.put(']', '[');
+        pairs.put('}', '{');
+        Deque<Character> st = new ArrayDeque<>();
+        for (char c : s.toCharArray()) {
+            if (pairs.containsKey(c)) {
+                if (st.isEmpty() || st.pop() != pairs.get(c)) return false;
+            } else {
+                st.push(c);
+            }
+        }
+        return st.isEmpty();
+    }
+}`,
+js:`var isValid = function(s) {
+    const pairs = { ")": "(", "]": "[", "}": "{" };
+    const stack = [];
+    for (const ch of s) {
+        if (pairs[ch]) {
+            if (stack.pop() !== pairs[ch]) return false;
+        } else {
+            stack.push(ch);
+        }
+    }
+    return stack.length === 0;
+};`}
+},
+{
+  id:"binary-search", title:"Binary Search", diff:"Easy", pattern:"Binary search",
+  blurb:"Halve the search space. Get the loop bounds right once and reuse them forever.",
+  fn:"search", ret:"int",
+  params:[{name:"nums",type:"int[]"},{name:"target",type:"int"}],
+  desc:"<p>Given a sorted array of distinct integers <code>nums</code> and an integer <code>target</code>, return the index of <code>target</code>, or <code>-1</code> if it is not present.</p><p>Your algorithm must run in O(log n) time.</p>",
+  examples:[
+    {in:"nums = [-1,0,3,5,9,12], target = 9", out:"4"},
+    {in:"nums = [-1,0,3,5,9,12], target = 2", out:"-1"}
+  ],
+  constraints:["<code>1 &lt;= nums.length &lt;= 10^4</code>","<code>nums</code> is sorted ascending with distinct values."],
+  hints:["Keep two pointers for an inclusive range: lo = 0, hi = n - 1.",
+         "Loop while lo <= hi. Compare nums[mid] to target and move the pointer past mid — mid + 1 or mid - 1, never mid, or you will loop forever.",
+         "In other languages (lo + hi) can overflow. lo + (hi - lo) / 2 is the habit worth building."],
+  tests:[
+    {args:[[-1,0,3,5,9,12],9], expected:4},
+    {args:[[-1,0,3,5,9,12],2], expected:-1},
+    {args:[[5],5], expected:0},
+    {args:[[5],-5], expected:-1},
+    {args:[[1,3],3], expected:1}
+  ],
+  sols:{
+py:`class Solution:
+    def search(self, nums, target):
+        lo, hi = 0, len(nums) - 1
+        while lo <= hi:
+            mid = lo + (hi - lo) // 2
+            if nums[mid] == target:
+                return mid
+            if nums[mid] < target:
+                lo = mid + 1
+            else:
+                hi = mid - 1
+        return -1`,
+cpp:`class Solution {
+public:
+    int search(vector<int>& nums, int target) {
+        int lo = 0, hi = (int)nums.size() - 1;
+        while (lo <= hi) {
+            int mid = lo + (hi - lo) / 2;
+            if (nums[mid] == target) return mid;
+            if (nums[mid] < target) lo = mid + 1;
+            else hi = mid - 1;
+        }
+        return -1;
+    }
+};`,
+java:`class Solution {
+    public int search(int[] nums, int target) {
+        int lo = 0, hi = nums.length - 1;
+        while (lo <= hi) {
+            int mid = lo + (hi - lo) / 2;
+            if (nums[mid] == target) return mid;
+            if (nums[mid] < target) lo = mid + 1;
+            else hi = mid - 1;
+        }
+        return -1;
+    }
+}`,
+js:`var search = function(nums, target) {
+    let lo = 0, hi = nums.length - 1;
+    while (lo <= hi) {
+        const mid = lo + ((hi - lo) >> 1);
+        if (nums[mid] === target) return mid;
+        if (nums[mid] < target) lo = mid + 1;
+        else hi = mid - 1;
+    }
+    return -1;
+};`}
+},
+{
+  id:"max-profit", title:"Best Time to Buy and Sell Stock", diff:"Easy", pattern:"Greedy",
+  blurb:"One pass, one running minimum. No DP table required.",
+  fn:"maxProfit", ret:"int",
+  params:[{name:"prices",type:"int[]"}],
+  desc:"<p><code>prices[i]</code> is the price of a stock on day <code>i</code>. Buy on one day and sell on a later day.</p><p>Return the maximum profit you can make. If no profit is possible, return <code>0</code>.</p>",
+  examples:[
+    {in:"prices = [7,1,5,3,6,4]", out:"5", note:"Buy at 1 on day 1, sell at 6 on day 4."},
+    {in:"prices = [7,6,4,3,1]", out:"0", note:"Prices only fall, so do not trade."}
+  ],
+  constraints:["<code>1 &lt;= prices.length &lt;= 10^5</code>","<code>0 &lt;= prices[i] &lt;= 10^4</code>"],
+  hints:["For each day, the best sale is that price minus the cheapest price seen before it.",
+         "So sweep left to right keeping one variable: the minimum so far.",
+         "Update the answer before or after updating the minimum — either works, as long as buying and selling on the same day yields 0, not a negative."],
+  tests:[
+    {args:[[7,1,5,3,6,4]], expected:5},
+    {args:[[7,6,4,3,1]], expected:0},
+    {args:[[1,2]], expected:1},
+    {args:[[2,4,1,7]], expected:6},
+    {args:[[3]], expected:0}
+  ],
+  sols:{
+py:`class Solution:
+    def maxProfit(self, prices):
+        best = 0
+        low = float("inf")
+        for p in prices:
+            if p < low:
+                low = p
+            elif p - low > best:
+                best = p - low
+        return best`,
+cpp:`class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int best = 0, low = INT_MAX;
+        for (int p : prices) {
+            if (p < low) low = p;
+            else if (p - low > best) best = p - low;
+        }
+        return best;
+    }
+};`,
+java:`class Solution {
+    public int maxProfit(int[] prices) {
+        int best = 0, low = Integer.MAX_VALUE;
+        for (int p : prices) {
+            if (p < low) low = p;
+            else if (p - low > best) best = p - low;
+        }
+        return best;
+    }
+}`,
+js:`var maxProfit = function(prices) {
+    let best = 0, low = Infinity;
+    for (const p of prices) {
+        if (p < low) low = p;
+        else if (p - low > best) best = p - low;
+    }
+    return best;
+};`}
+},
+{
+  id:"climb-stairs", title:"Climbing Stairs", diff:"Easy", pattern:"Dynamic programming",
+  blurb:"The smallest honest DP there is — and it collapses to two variables.",
+  fn:"climbStairs", ret:"int",
+  params:[{name:"n",type:"int"}],
+  desc:"<p>You are climbing a staircase of <code>n</code> steps. Each move you climb either 1 or 2 steps.</p><p>How many distinct ways can you reach the top?</p>",
+  examples:[
+    {in:"n = 2", out:"2", note:"1+1, or 2"},
+    {in:"n = 3", out:"3", note:"1+1+1, 1+2, 2+1"}
+  ],
+  constraints:["<code>1 &lt;= n &lt;= 45</code>"],
+  hints:["To land on step n, your last move came from step n-1 or step n-2. So ways(n) = ways(n-1) + ways(n-2).",
+         "That is Fibonacci. Naive recursion recomputes the same subproblems exponentially — memoize it or build up from the bottom.",
+         "Bottom-up needs only the last two values, so the space is O(1)."],
+  tests:[
+    {args:[1], expected:1},
+    {args:[2], expected:2},
+    {args:[3], expected:3},
+    {args:[10], expected:89},
+    {args:[30], expected:1346269}
+  ],
+  sols:{
+py:`class Solution:
+    def climbStairs(self, n):
+        a, b = 1, 1
+        for _ in range(n - 1):
+            a, b = b, a + b
+        return b`,
+cpp:`class Solution {
+public:
+    int climbStairs(int n) {
+        int a = 1, b = 1;
+        for (int i = 1; i < n; i++) {
+            int next = a + b;
+            a = b;
+            b = next;
+        }
+        return b;
+    }
+};`,
+java:`class Solution {
+    public int climbStairs(int n) {
+        int a = 1, b = 1;
+        for (int i = 1; i < n; i++) {
+            int next = a + b;
+            a = b;
+            b = next;
+        }
+        return b;
+    }
+}`,
+js:`var climbStairs = function(n) {
+    let a = 1, b = 1;
+    for (let i = 1; i < n; i++) {
+        const next = a + b;
+        a = b;
+        b = next;
+    }
+    return b;
+};`}
+},
+{
+  id:"longest-substring", title:"Longest Substring Without Repeating Characters", diff:"Medium", pattern:"Sliding window",
+  blurb:"A window that only ever moves right. Both pointers together are O(n), not O(n²).",
+  fn:"lengthOfLongestSubstring", ret:"int",
+  params:[{name:"s",type:"string"}],
+  desc:"<p>Given a string <code>s</code>, return the length of the longest substring that contains no repeated characters.</p><p>A substring is contiguous — <code>\"pwke\"</code> is a subsequence of <code>\"pwwkew\"</code>, not a substring.</p>",
+  examples:[
+    {in:'s = "abcabcbb"', out:"3", note:'"abc"'},
+    {in:'s = "pwwkew"', out:"3", note:'"wke"'},
+    {in:'s = "bbbbb"', out:"1"}
+  ],
+  constraints:["<code>0 &lt;= s.length &lt;= 5 * 10^4</code>","<code>s</code> is made of letters, digits, symbols and spaces."],
+  hints:["Keep a window [start, i] that is always duplicate-free, and extend i one character at a time.",
+         "When s[i] was seen inside the current window, jump start to one past that earlier index. Store each character's last index in a map.",
+         "Guard the jump: an old index from before start must not drag start backwards."],
+  tests:[
+    {args:["abcabcbb"], expected:3},
+    {args:["bbbbb"], expected:1},
+    {args:["pwwkew"], expected:3},
+    {args:[""], expected:0},
+    {args:["dvdf"], expected:3},
+    {args:[" "], expected:1}
+  ],
+  sols:{
+py:`class Solution:
+    def lengthOfLongestSubstring(self, s):
+        last = {}
+        start = 0
+        best = 0
+        for i, ch in enumerate(s):
+            if ch in last and last[ch] >= start:
+                start = last[ch] + 1
+            last[ch] = i
+            best = max(best, i - start + 1)
+        return best`,
+cpp:`class Solution {
+public:
+    int lengthOfLongestSubstring(string& s) {
+        unordered_map<char, int> last;
+        int start = 0, best = 0;
+        for (int i = 0; i < (int)s.size(); i++) {
+            auto it = last.find(s[i]);
+            if (it != last.end() && it->second >= start) start = it->second + 1;
+            last[s[i]] = i;
+            best = max(best, i - start + 1);
+        }
+        return best;
+    }
+};`,
+java:`class Solution {
+    public int lengthOfLongestSubstring(String s) {
+        Map<Character, Integer> last = new HashMap<>();
+        int start = 0, best = 0;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            Integer prev = last.get(c);
+            if (prev != null && prev >= start) start = prev + 1;
+            last.put(c, i);
+            best = Math.max(best, i - start + 1);
+        }
+        return best;
+    }
+}`,
+js:`var lengthOfLongestSubstring = function(s) {
+    const last = new Map();
+    let start = 0, best = 0;
+    for (let i = 0; i < s.length; i++) {
+        const ch = s[i];
+        if (last.has(ch) && last.get(ch) >= start) start = last.get(ch) + 1;
+        last.set(ch, i);
+        best = Math.max(best, i - start + 1);
+    }
+    return best;
+};`}
+},
+{
+  id:"product-except-self", title:"Product of Array Except Self", diff:"Medium", pattern:"Prefix and suffix",
+  blurb:"Everything to my left times everything to my right — no division allowed.",
+  fn:"productExceptSelf", ret:"int[]",
+  params:[{name:"nums",type:"int[]"}],
+  desc:"<p>Return an array <code>out</code> where <code>out[i]</code> is the product of every element of <code>nums</code> except <code>nums[i]</code>.</p><p>Solve it in O(n) without using division, and the output array does not count against extra space.</p>",
+  examples:[
+    {in:"nums = [1,2,3,4]", out:"[24,12,8,6]"},
+    {in:"nums = [-1,1,0,-3,3]", out:"[0,0,9,0,0]"}
+  ],
+  constraints:["<code>2 &lt;= nums.length &lt;= 10^5</code>","The answer always fits in a 32-bit integer."],
+  hints:["out[i] is (product of everything before i) × (product of everything after i).",
+         "First pass left to right: write the running prefix product into out[i] before multiplying nums[i] into it.",
+         "Second pass right to left with a running suffix product, multiplying into what is already there. Zeros then handle themselves."],
+  tests:[
+    {args:[[1,2,3,4]], expected:[24,12,8,6]},
+    {args:[[-1,1,0,-3,3]], expected:[0,0,9,0,0]},
+    {args:[[2,3]], expected:[3,2]},
+    {args:[[0,0]], expected:[0,0]}
+  ],
+  sols:{
+py:`class Solution:
+    def productExceptSelf(self, nums):
+        n = len(nums)
+        out = [1] * n
+        prefix = 1
+        for i in range(n):
+            out[i] = prefix
+            prefix *= nums[i]
+        suffix = 1
+        for i in range(n - 1, -1, -1):
+            out[i] *= suffix
+            suffix *= nums[i]
+        return out`,
+cpp:`class Solution {
+public:
+    vector<int> productExceptSelf(vector<int>& nums) {
+        int n = (int)nums.size();
+        vector<int> out(n, 1);
+        int prefix = 1;
+        for (int i = 0; i < n; i++) {
+            out[i] = prefix;
+            prefix *= nums[i];
+        }
+        int suffix = 1;
+        for (int i = n - 1; i >= 0; i--) {
+            out[i] *= suffix;
+            suffix *= nums[i];
+        }
+        return out;
+    }
+};`,
+java:`class Solution {
+    public int[] productExceptSelf(int[] nums) {
+        int n = nums.length;
+        int[] out = new int[n];
+        int prefix = 1;
+        for (int i = 0; i < n; i++) {
+            out[i] = prefix;
+            prefix *= nums[i];
+        }
+        int suffix = 1;
+        for (int i = n - 1; i >= 0; i--) {
+            out[i] *= suffix;
+            suffix *= nums[i];
+        }
+        return out;
+    }
+}`,
+js:`var productExceptSelf = function(nums) {
+    const n = nums.length;
+    const out = new Array(n).fill(1);
+    let prefix = 1;
+    for (let i = 0; i < n; i++) {
+        out[i] = prefix;
+        prefix *= nums[i];
+    }
+    let suffix = 1;
+    for (let i = n - 1; i >= 0; i--) {
+        out[i] *= suffix;
+        suffix *= nums[i];
+    }
+    return out;
+};`}
+},
+{
+  id:"merge-intervals", title:"Merge Intervals", diff:"Medium", pattern:"Sorting and intervals",
+  blurb:"Sort first, then the overlap check only ever looks one step back.",
+  fn:"merge", ret:"int[][]",
+  params:[{name:"intervals",type:"int[][]"}],
+  desc:"<p>Given a list of intervals <code>[start, end]</code>, merge every group that overlaps and return the merged list.</p><p>Return the intervals sorted by start.</p>",
+  examples:[
+    {in:"intervals = [[1,3],[2,6],[8,10],[15,18]]", out:"[[1,6],[8,10],[15,18]]", note:"[1,3] and [2,6] touch, so they become [1,6]."},
+    {in:"intervals = [[1,4],[4,5]]", out:"[[1,5]]", note:"Touching at an endpoint counts as overlapping."}
+  ],
+  constraints:["<code>1 &lt;= intervals.length &lt;= 10^4</code>","<code>intervals[i].length == 2</code> and <code>start &lt;= end</code>"],
+  hints:["Unsorted, any interval can overlap any other. Sorted by start, an overlap can only be with the interval you just kept.",
+         "Walk the sorted list. If start <= end of the last kept interval, extend that one; otherwise append a new one.",
+         "Extend with max(lastEnd, end) — the current interval can be fully contained inside the previous one."],
+  tests:[
+    {args:[[[1,3],[2,6],[8,10],[15,18]]], expected:[[1,6],[8,10],[15,18]]},
+    {args:[[[1,4],[4,5]]], expected:[[1,5]]},
+    {args:[[[1,4],[0,4]]], expected:[[0,4]]},
+    {args:[[[1,4],[2,3]]], expected:[[1,4]]},
+    {args:[[[5,7]]], expected:[[5,7]]}
+  ],
+  sols:{
+py:`class Solution:
+    def merge(self, intervals):
+        intervals.sort(key=lambda x: x[0])
+        out = []
+        for start, end in intervals:
+            if out and start <= out[-1][1]:
+                out[-1][1] = max(out[-1][1], end)
+            else:
+                out.append([start, end])
+        return out`,
+cpp:`class Solution {
+public:
+    vector<vector<int>> merge(vector<vector<int>>& intervals) {
+        sort(intervals.begin(), intervals.end());
+        vector<vector<int>> out;
+        for (auto& iv : intervals) {
+            if (!out.empty() && iv[0] <= out.back()[1]) {
+                out.back()[1] = max(out.back()[1], iv[1]);
+            } else {
+                out.push_back(iv);
+            }
+        }
+        return out;
+    }
+};`,
+java:`class Solution {
+    public int[][] merge(int[][] intervals) {
+        Arrays.sort(intervals, (a, b) -> Integer.compare(a[0], b[0]));
+        List<int[]> out = new ArrayList<>();
+        for (int[] iv : intervals) {
+            if (!out.isEmpty() && iv[0] <= out.get(out.size() - 1)[1]) {
+                int[] last = out.get(out.size() - 1);
+                last[1] = Math.max(last[1], iv[1]);
+            } else {
+                out.add(new int[]{iv[0], iv[1]});
+            }
+        }
+        return out.toArray(new int[0][]);
+    }
+}`,
+js:`var merge = function(intervals) {
+    intervals.sort((a, b) => a[0] - b[0]);
+    const out = [];
+    for (const [start, end] of intervals) {
+        const last = out[out.length - 1];
+        if (last && start <= last[1]) last[1] = Math.max(last[1], end);
+        else out.push([start, end]);
+    }
+    return out;
+};`}
+},
+{
+  id:"num-islands", title:"Number of Islands", diff:"Medium", pattern:"Graph traversal",
+  blurb:"A grid is a graph. Flood fill each unvisited land cell and count how many times you had to start.",
+  fn:"numIslands", ret:"int",
+  params:[{name:"grid",type:"char[][]"}],
+  desc:"<p>Given a grid of <code>'1'</code> (land) and <code>'0'</code> (water), count the islands.</p><p>An island is land connected in the four cardinal directions, surrounded by water or the edge of the grid.</p>",
+  examples:[
+    {in:'grid = [["1","1","0"],\n        ["1","0","0"],\n        ["0","0","1"]]', out:"2"},
+    {in:'grid = [["0"]]', out:"0"}
+  ],
+  constraints:["<code>1 &lt;= m, n &lt;= 300</code>","Each cell is the character <code>'0'</code> or <code>'1'</code>."],
+  hints:["Scan every cell. When you hit unvisited land, that is a new island — increment the count, then erase the whole island so you never count it twice.",
+         "Erasing means DFS or BFS from that cell, overwriting each connected '1' with '0'.",
+         "Recursion is shortest but can blow the stack on a 300×300 all-land grid. An explicit stack or queue avoids that."],
+  tests:[
+    {args:[[["1","1","1","1","0"],["1","1","0","1","0"],["1","1","0","0","0"],["0","0","0","0","0"]]], expected:1},
+    {args:[[["1","1","0","0","0"],["1","1","0","0","0"],["0","0","1","0","0"],["0","0","0","1","1"]]], expected:3},
+    {args:[[["0"]]], expected:0},
+    {args:[[["1","0","1"],["0","1","0"],["1","0","1"]]], expected:5}
+  ],
+  sols:{
+py:`class Solution:
+    def numIslands(self, grid):
+        if not grid:
+            return 0
+        rows, cols = len(grid), len(grid[0])
+        count = 0
+        for r in range(rows):
+            for c in range(cols):
+                if grid[r][c] != "1":
+                    continue
+                count += 1
+                stack = [(r, c)]
+                grid[r][c] = "0"
+                while stack:
+                    y, x = stack.pop()
+                    for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                        ny, nx = y + dy, x + dx
+                        if 0 <= ny < rows and 0 <= nx < cols and grid[ny][nx] == "1":
+                            grid[ny][nx] = "0"
+                            stack.append((ny, nx))
+        return count`,
+cpp:`class Solution {
+public:
+    int numIslands(vector<vector<char>>& grid) {
+        if (grid.empty()) return 0;
+        int rows = (int)grid.size(), cols = (int)grid[0].size(), count = 0;
+        int dy[4] = {1, -1, 0, 0}, dx[4] = {0, 0, 1, -1};
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                if (grid[r][c] != '1') continue;
+                count++;
+                vector<pair<int,int>> st{{r, c}};
+                grid[r][c] = '0';
+                while (!st.empty()) {
+                    auto [y, x] = st.back();
+                    st.pop_back();
+                    for (int k = 0; k < 4; k++) {
+                        int ny = y + dy[k], nx = x + dx[k];
+                        if (ny >= 0 && ny < rows && nx >= 0 && nx < cols && grid[ny][nx] == '1') {
+                            grid[ny][nx] = '0';
+                            st.push_back({ny, nx});
+                        }
+                    }
+                }
+            }
+        }
+        return count;
+    }
+};`,
+java:`class Solution {
+    public int numIslands(char[][] grid) {
+        if (grid.length == 0) return 0;
+        int rows = grid.length, cols = grid[0].length, count = 0;
+        int[] dy = {1, -1, 0, 0}, dx = {0, 0, 1, -1};
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                if (grid[r][c] != '1') continue;
+                count++;
+                Deque<int[]> st = new ArrayDeque<>();
+                st.push(new int[]{r, c});
+                grid[r][c] = '0';
+                while (!st.isEmpty()) {
+                    int[] cur = st.pop();
+                    for (int k = 0; k < 4; k++) {
+                        int ny = cur[0] + dy[k], nx = cur[1] + dx[k];
+                        if (ny >= 0 && ny < rows && nx >= 0 && nx < cols && grid[ny][nx] == '1') {
+                            grid[ny][nx] = '0';
+                            st.push(new int[]{ny, nx});
+                        }
+                    }
+                }
+            }
+        }
+        return count;
+    }
+}`,
+js:`var numIslands = function(grid) {
+    if (grid.length === 0) return 0;
+    const rows = grid.length, cols = grid[0].length;
+    const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+    let count = 0;
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            if (grid[r][c] !== "1") continue;
+            count++;
+            const stack = [[r, c]];
+            grid[r][c] = "0";
+            while (stack.length) {
+                const [y, x] = stack.pop();
+                for (const [dy, dx] of dirs) {
+                    const ny = y + dy, nx = x + dx;
+                    if (ny >= 0 && ny < rows && nx >= 0 && nx < cols && grid[ny][nx] === "1") {
+                        grid[ny][nx] = "0";
+                        stack.push([ny, nx]);
+                    }
+                }
+            }
+        }
+    }
+    return count;
+};`}
+},
+{
+  id:"coin-change", title:"Coin Change", diff:"Medium", pattern:"Unbounded knapsack",
+  blurb:"Greedy fails here. Build every amount from the amounts below it.",
+  fn:"coinChange", ret:"int",
+  params:[{name:"coins",type:"int[]"},{name:"amount",type:"int"}],
+  desc:"<p>Given coin denominations <code>coins</code> and a total <code>amount</code>, return the fewest coins needed to make that amount.</p><p>You have unlimited coins of each denomination. If the amount cannot be made, return <code>-1</code>.</p>",
+  examples:[
+    {in:"coins = [1,2,5], amount = 11", out:"3", note:"5 + 5 + 1"},
+    {in:"coins = [2], amount = 3", out:"-1"},
+    {in:"coins = [1], amount = 0", out:"0"}
+  ],
+  constraints:["<code>1 &lt;= coins.length &lt;= 12</code>","<code>0 &lt;= amount &lt;= 10^4</code>"],
+  hints:["Taking the largest coin first is wrong: for coins [1,3,4] and amount 6, greedy gives 4+1+1 but the answer is 3+3.",
+         "Define dp[a] = fewest coins for amount a. Then dp[a] = 1 + min(dp[a - coin]) over every coin that fits.",
+         "Fill dp from 0 upward with an unreachable sentinel like amount + 1, and at the end return -1 if dp[amount] is still the sentinel."],
+  tests:[
+    {args:[[1,2,5],11], expected:3},
+    {args:[[2],3], expected:-1},
+    {args:[[1],0], expected:0},
+    {args:[[1,3,4],6], expected:2},
+    {args:[[186,419,83,408],6249], expected:20}
+  ],
+  sols:{
+py:`class Solution:
+    def coinChange(self, coins, amount):
+        INF = amount + 1
+        dp = [0] + [INF] * amount
+        for a in range(1, amount + 1):
+            for coin in coins:
+                if coin <= a and dp[a - coin] + 1 < dp[a]:
+                    dp[a] = dp[a - coin] + 1
+        return -1 if dp[amount] == INF else dp[amount]`,
+cpp:`class Solution {
+public:
+    int coinChange(vector<int>& coins, int amount) {
+        int INF = amount + 1;
+        vector<int> dp(amount + 1, INF);
+        dp[0] = 0;
+        for (int a = 1; a <= amount; a++) {
+            for (int coin : coins) {
+                if (coin <= a) dp[a] = min(dp[a], dp[a - coin] + 1);
+            }
+        }
+        return dp[amount] == INF ? -1 : dp[amount];
+    }
+};`,
+java:`class Solution {
+    public int coinChange(int[] coins, int amount) {
+        int INF = amount + 1;
+        int[] dp = new int[amount + 1];
+        Arrays.fill(dp, INF);
+        dp[0] = 0;
+        for (int a = 1; a <= amount; a++) {
+            for (int coin : coins) {
+                if (coin <= a) dp[a] = Math.min(dp[a], dp[a - coin] + 1);
+            }
+        }
+        return dp[amount] == INF ? -1 : dp[amount];
+    }
+}`,
+js:`var coinChange = function(coins, amount) {
+    const INF = amount + 1;
+    const dp = new Array(amount + 1).fill(INF);
+    dp[0] = 0;
+    for (let a = 1; a <= amount; a++) {
+        for (const coin of coins) {
+            if (coin <= a) dp[a] = Math.min(dp[a], dp[a - coin] + 1);
+        }
+    }
+    return dp[amount] === INF ? -1 : dp[amount];
+};`}
+}
+];
+
+/* =========================================================
+   Language config + stub generation
+   ========================================================= */
+const LANGS = [
+  {id:"py",   label:"Python", file:"solution.py",  run:"python3 solution.py"},
+  {id:"cpp",  label:"C++",    file:"main.cpp",     run:"g++ -std=c++17 main.cpp -o main && ./main"},
+  {id:"java", label:"Java",   file:"Main.java",    run:"java Main.java"},
+  {id:"js",   label:"JavaScript", file:"solution.js", run:"node solution.js"}
+];
+
+const CPP_T  = {int:"int", string:"string", bool:"bool", "int[]":"vector<int>", "int[][]":"vector<vector<int>>", "char[][]":"vector<vector<char>>"};
+const JAVA_T = {int:"int", string:"String", bool:"boolean", "int[]":"int[]", "int[][]":"int[][]", "char[][]":"char[][]"};
+const JSDOC_T= {int:"number", string:"string", bool:"boolean", "int[]":"number[]", "int[][]":"number[][]", "char[][]":"character[][]"};
+
+function cppParam(p){ return p.type === "int" ? "int " + p.name : CPP_T[p.type] + "& " + p.name; }
+
+function cppLit(type, v){
+  if (type === "int") return String(v);
+  if (type === "bool") return v ? "true" : "false";
+  if (type === "string") return JSON.stringify(v);
+  if (type === "int[]") return "{" + v.join(", ") + "}";
+  if (type === "int[][]") return "{" + v.map(r => "{" + r.join(", ") + "}").join(", ") + "}";
+  if (type === "char[][]") return "{" + v.map(r => "{" + r.map(c => "'" + c + "'").join(", ") + "}").join(", ") + "}";
+  return String(v);
+}
+function javaLit(type, v){
+  if (type === "int") return String(v);
+  if (type === "bool") return v ? "true" : "false";
+  if (type === "string") return JSON.stringify(v);
+  if (type === "int[]") return "new int[]{" + v.join(", ") + "}";
+  if (type === "int[][]") return "new int[][]{" + v.map(r => "{" + r.join(", ") + "}").join(", ") + "}";
+  if (type === "char[][]") return "new char[][]{" + v.map(r => "{" + r.map(c => "'" + c + "'").join(", ") + "}").join(", ") + "}";
+  return String(v);
+}
+
+function stubFor(p, lang){
+  const names = p.params.map(x => x.name).join(", ");
+  if (lang === "py"){
+    return "class Solution:\n    def " + p.fn + "(self, " + names + "):\n        # Write your solution here\n        pass";
+  }
+  if (lang === "js"){
+    const doc = p.params.map(x => " * @param {" + JSDOC_T[x.type] + "} " + x.name).join("\n");
+    return "/**\n" + doc + "\n * @return {" + JSDOC_T[p.ret] + "}\n */\nvar " + p.fn + " = function(" + names + ") {\n    // Write your solution here\n};";
+  }
+  if (lang === "cpp"){
+    const sig = p.params.map(cppParam).join(", ");
+    const dflt = {int:"return 0;", bool:"return false;", string:'return "";', "int[]":"return {};", "int[][]":"return {};"}[p.ret] || "return {};";
+    return "class Solution {\npublic:\n    " + CPP_T[p.ret] + " " + p.fn + "(" + sig + ") {\n        // Write your solution here\n        " + dflt + "\n    }\n};";
+  }
+  const sig = p.params.map(x => JAVA_T[x.type] + " " + x.name).join(", ");
+  const dflt = {int:"return 0;", bool:"return false;", string:'return "";', "int[]":"return new int[]{};", "int[][]":"return new int[0][];"}[p.ret] || "return null;";
+  return "class Solution {\n    public " + JAVA_T[p.ret] + " " + p.fn + "(" + sig + ") {\n        // Write your solution here\n        " + dflt + "\n    }\n}";
+}
+
+/* =========================================================
+   Runnable file generation (copy, compile, run locally)
+   ========================================================= */
+function buildFile(p, lang, code){
+  if (lang === "py") return buildPy(p, code);
+  if (lang === "js") return buildJs(p, code);
+  if (lang === "cpp") return buildCpp(p, code);
+  return buildJava(p, code);
+}
+
+function pyLit(v){
+  if (v === true) return "True";
+  if (v === false) return "False";
+  if (v === null) return "None";
+  if (Array.isArray(v)) return "[" + v.map(pyLit).join(", ") + "]";
+  if (typeof v === "string") return JSON.stringify(v);
+  return String(v);
+}
+
+function buildPy(p, code){
+  const cases = p.tests.map(t => "    (" + pyLit(t.args) + ", " + pyLit(t.expected) + "),").join("\n");
+  const norm = p.cmp === "pair" ? "sorted(v) if isinstance(v, list) else v" : "v";
+  return code + "\n\n\n# ---- test harness (generated) ----\nCASES = [\n" + cases + "\n]\n\n\ndef norm(v):\n    return " + norm +
+    "\n\n\nif __name__ == \"__main__\":\n    sol = Solution()\n    passed = 0\n    for i, (args, expected) in enumerate(CASES, 1):\n" +
+    "        got = sol." + p.fn + "(*[__import__(\"copy\").deepcopy(a) for a in args])\n" +
+    "        ok = norm(got) == norm(expected)\n        passed += ok\n" +
+    "        print((\"PASS\" if ok else \"FAIL\"), \"#\" + str(i), \" got:\", got, \" expected:\", expected)\n" +
+    "    print(str(passed) + \"/\" + str(len(CASES)) + \" passed\")\n";
+}
+
+function buildJs(p, code){
+  const cases = p.tests.map(t => "  { args: " + JSON.stringify(t.args) + ", expected: " + JSON.stringify(t.expected) + " },").join("\n");
+  const norm = p.cmp === "pair"
+    ? "const norm = (v) => (Array.isArray(v) ? [...v].sort((a, b) => a - b) : v);"
+    : "const norm = (v) => v;";
+  return code + "\n\n\n// ---- test harness (generated) ----\nconst CASES = [\n" + cases + "\n];\n" + norm +
+    "\nlet passed = 0;\nCASES.forEach((c, i) => {\n  const got = " + p.fn + "(...JSON.parse(JSON.stringify(c.args)));\n" +
+    "  const ok = JSON.stringify(norm(got)) === JSON.stringify(norm(c.expected));\n  passed += ok ? 1 : 0;\n" +
+    "  console.log(ok ? \"PASS\" : \"FAIL\", \"#\" + (i + 1), \" got:\", JSON.stringify(got), \" expected:\", JSON.stringify(c.expected));\n});\n" +
+    "console.log(passed + \"/\" + CASES.length + \" passed\");\n";
+}
+
+function buildCpp(p, code){
+  const helpers =
+`// ---- test harness (generated) ----
+static string show(int v) { return to_string(v); }
+static string show(bool v) { return v ? "true" : "false"; }
+static string show(const string& v) { return "\\"" + v + "\\""; }
+static string show(const vector<int>& v) {
+    string s = "[";
+    for (size_t i = 0; i < v.size(); i++) { if (i) s += ","; s += to_string(v[i]); }
+    return s + "]";
+}
+static string show(const vector<vector<int>>& v) {
+    string s = "[";
+    for (size_t i = 0; i < v.size(); i++) { if (i) s += ","; s += show(v[i]); }
+    return s + "]";
+}
+`;
+  let body = "int main() {\n    Solution sol;\n    int pass = 0, total = 0;\n";
+  p.tests.forEach((t, i) => {
+    body += "    {\n";
+    p.params.forEach((par, k) => {
+      body += "        " + CPP_T[par.type] + " " + par.name + " = " + cppLit(par.type, t.args[k]) + ";\n";
+    });
+    body += "        " + CPP_T[p.ret] + " expected = " + cppLit(p.ret, t.expected) + ";\n";
+    body += "        " + CPP_T[p.ret] + " got = sol." + p.fn + "(" + p.params.map(x => x.name).join(", ") + ");\n";
+    if (p.cmp === "pair") body += "        sort(got.begin(), got.end()); sort(expected.begin(), expected.end());\n";
+    body += "        bool ok = (got == expected);\n        total++; if (ok) pass++;\n";
+    body += '        cout << (ok ? "PASS" : "FAIL") << " #' + (i + 1) + '  got: " << show(got) << "  expected: " << show(expected) << "\\n";\n';
+    body += "    }\n";
+  });
+  body += '    cout << pass << "/" << total << " passed\\n";\n    return 0;\n}\n';
+  return "#include <bits/stdc++.h>\nusing namespace std;\n\n" + code + "\n\n" + helpers + "\n" + body;
+}
+
+function buildJava(p, code){
+  const helpers =
+`    // ---- test harness (generated) ----
+    static String show(Object v) {
+        if (v instanceof int[]) return Arrays.toString((int[]) v);
+        if (v instanceof int[][]) return Arrays.deepToString((int[][]) v);
+        return String.valueOf(v);
+    }
+
+    static boolean eq(Object a, Object b) {
+        if (a instanceof int[] && b instanceof int[]) return Arrays.equals((int[]) a, (int[]) b);
+        if (a instanceof int[][] && b instanceof int[][]) return Arrays.deepEquals((int[][]) a, (int[][]) b);
+        return Objects.equals(a, b);
+    }
+`;
+  let body = "    public static void main(String[] args) {\n        Solution sol = new Solution();\n        int pass = 0, total = 0;\n";
+  p.tests.forEach((t, i) => {
+    body += "        {\n";
+    p.params.forEach((par, k) => {
+      body += "            " + JAVA_T[par.type] + " " + par.name + " = " + javaLit(par.type, t.args[k]) + ";\n";
+    });
+    body += "            " + JAVA_T[p.ret] + " expected = " + javaLit(p.ret, t.expected) + ";\n";
+    body += "            " + JAVA_T[p.ret] + " got = sol." + p.fn + "(" + p.params.map(x => x.name).join(", ") + ");\n";
+    if (p.cmp === "pair") body += "            Arrays.sort(got); Arrays.sort(expected);\n";
+    body += "            boolean ok = eq(got, expected);\n            total++; if (ok) pass++;\n";
+    body += '            System.out.println((ok ? "PASS" : "FAIL") + " #' + (i + 1) + '  got: " + show(got) + "  expected: " + show(expected));\n';
+    body += "        }\n";
+  });
+  body += '        System.out.println(pass + "/" + total + " passed");\n    }\n';
+  return "import java.util.*;\n\npublic class Main {\n" + helpers + "\n" + body + "}\n\n" + code + "\n";
+}
+
+/* =========================================================
+   State
+   ========================================================= */
+const LS = {
+  get(k, fallback){ try { const v = localStorage.getItem(k); return v === null ? fallback : JSON.parse(v); } catch(e){ return fallback; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+};
+let lang = LS.get("lp.lang", "py");
+if (!LANGS.some(l => l.id === lang)) lang = "py";
+let solved = new Set(LS.get("lp.solved", []));
+let current = null;
+
+function codeKey(id, l){ return "lp.code." + id + "." + l; }
+function getCode(p, l){ return LS.get(codeKey(p.id, l), null) || stubFor(p, l); }
+function saveCode(p, l, text){ LS.set(codeKey(p.id, l), text); }
+function markSolved(p, l){
+  const k = p.id + ":" + l;
+  if (!solved.has(k)){ solved.add(k); LS.set("lp.solved", [...solved]); }
+}
+
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const el = id => document.getElementById(id);
+
+/* =========================================================
+   Index view
+   ========================================================= */
+function renderLangbar(){
+  el("langbar").innerHTML = LANGS.map(l =>
+    '<button type="button" data-lang="' + l.id + '" aria-pressed="' + (l.id === lang) + '">' + l.label + '</button>'
+  ).join("");
+  el("langbar").querySelectorAll("button").forEach(b => {
+    b.onclick = () => {
+      lang = b.dataset.lang;
+      LS.set("lp.lang", lang);
+      renderLangbar();
+      renderMeter();
+      if (current) openProblem(current.id, false); else renderIndex();
+    };
+  });
+}
+
+function renderMeter(){
+  const inLang = PROBLEMS.filter(p => solved.has(p.id + ":" + lang)).length;
+  const label = LANGS.find(l => l.id === lang).label;
+  el("meter").innerHTML = "<b>" + inLang + "/10</b> solved in " + label +
+    " &nbsp;·&nbsp; <b>" + solved.size + "/40</b> across all four";
+}
+
+function renderIndex(){
+  current = null;
+  el("detail").classList.add("hidden");
+  el("index").classList.remove("hidden");
+  let html = "";
+  PROBLEMS.forEach(p => {
+    const strip = LANGS.map(l =>
+      '<span class="cell ' + (solved.has(p.id + ":" + l.id) ? "on" : "") + '">' + l.label.replace("JavaScript","JS") + '</span>'
+    ).join("");
+    html += '<div class="group"><h2>' + esc(p.pattern) + '</h2>' +
+      '<button class="card" type="button" data-id="' + p.id + '">' +
+        '<div class="top"><span class="name">' + esc(p.title) + '</span><span class="diff ' + p.diff + '">' + p.diff + '</span></div>' +
+        '<p class="blurb">' + esc(p.blurb) + '</p>' +
+        '<div class="strip">' + strip + '</div>' +
+      '</button></div>';
+  });
+  el("index").innerHTML = html;
+  el("index").querySelectorAll(".card").forEach(c => {
+    c.onclick = () => openProblem(c.dataset.id, true);
+  });
+  renderMeter();
+}
+
+/* =========================================================
+   Problem view
+   ========================================================= */
+function openProblem(id, scroll){
+  const p = PROBLEMS.find(x => x.id === id);
+  current = p;
+  const L = LANGS.find(l => l.id === lang);
+  el("index").classList.add("hidden");
+  el("detail").classList.remove("hidden");
+
+  const examples = p.examples.map(e =>
+    '<div class="ex"><div><b>Input:</b>  ' + esc(e.in) + '</div><div><b>Output:</b> ' + esc(e.out) + '</div>' +
+    (e.note ? '<div class="note">' + esc(e.note) + '</div>' : '') + '</div>'
+  ).join("");
+
+  const hints = p.hints.map((h, i) =>
+    '<details><summary>Hint ' + (i + 1) + '</summary><div class="body"><p class="hint">' + esc(h) + '</p></div></details>'
+  ).join("");
+
+  const idx = PROBLEMS.indexOf(p);
+  const prev = PROBLEMS[idx - 1], next = PROBLEMS[idx + 1];
+
+  el("detail").innerHTML =
+    '<button class="back" type="button" id="back">‹ All problems</button>' +
+    '<div class="crumbs"><span class="tag">' + esc(p.pattern) + '</span><span class="diff ' + p.diff + '">' + p.diff + '</span>' +
+      (solved.has(p.id + ":" + lang) ? '<span class="diff Easy">solved in ' + esc(L.label) + '</span>' : '') + '</div>' +
+    '<h3>' + esc(p.title) + '</h3>' +
+    '<div class="prose">' + p.desc + '</div>' +
+    examples +
+    '<ul class="cons">' + p.constraints.map(c => "<li>" + c + "</li>").join("") + '</ul>' +
+    hints +
+    '<div class="edwrap">' +
+      '<div class="edhead"><span>' + esc(L.file) + '</span><span>' + esc(p.fn) + '</span></div>' +
+      '<textarea id="editor" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off"></textarea>' +
+    '</div>' +
+    '<div class="actions">' +
+      '<button class="btn primary" type="button" id="run">Run tests</button>' +
+      '<button class="btn" type="button" id="reset">Reset code</button>' +
+      '<button class="btn" type="button" id="file">Runnable file</button>' +
+    '</div>' +
+    '<div class="results" id="results"></div>' +
+    '<details id="filebox" class="hidden"><summary>' + esc(L.file) + ' — your code plus the test harness</summary>' +
+      '<div class="body"><p class="note">Save as <code>' + esc(L.file) + '</code> and run <code>' + esc(L.run) + '</code>.</p>' +
+      '<div class="actions" style="margin-top:0;margin-bottom:10px"><button class="btn" type="button" id="copyfile">Copy file</button></div>' +
+      '<pre class="out" id="filetext"></pre></div></details>' +
+    '<details><summary>Reference solution (' + esc(L.label) + ')</summary><div class="body">' +
+      '<p class="note">Read it after you have made a real attempt — recognising a solution is not the same as being able to produce one.</p>' +
+      '<pre class="out">' + esc(p.sols[lang]) + '</pre></div></details>' +
+    '<div class="navpair">' +
+      (prev ? '<button class="btn" type="button" id="prev">‹ ' + esc(prev.title) + '</button>' : '<span></span>') +
+      (next ? '<button class="btn" type="button" id="next">' + esc(next.title) + ' ›</button>' : '<span></span>') +
+    '</div>';
+
+  const ta = el("editor");
+  ta.value = getCode(p, lang);
+  ta.addEventListener("input", () => saveCode(p, lang, ta.value));
+  ta.addEventListener("keydown", e => {
+    if (e.key === "Tab"){
+      e.preventDefault();
+      const s = ta.selectionStart, en = ta.selectionEnd;
+      ta.value = ta.value.slice(0, s) + "    " + ta.value.slice(en);
+      ta.selectionStart = ta.selectionEnd = s + 4;
+      saveCode(p, lang, ta.value);
+    }
+  });
+
+  el("back").onclick = () => { renderIndex(); window.scrollTo(0, 0); };
+  el("reset").onclick = () => {
+    if (confirm("Replace your code with the starting template?")){
+      ta.value = stubFor(p, lang);
+      saveCode(p, lang, ta.value);
+    }
+  };
+  el("run").onclick = () => runTests(p, ta.value);
+  el("file").onclick = () => {
+    const box = el("filebox");
+    box.classList.remove("hidden");
+    el("filetext").textContent = buildFile(p, lang, ta.value);
+    box.open = true;
+    box.scrollIntoView({behavior:"smooth", block:"start"});
+    el("copyfile").onclick = async () => {
+      try { await navigator.clipboard.writeText(el("filetext").textContent); el("copyfile").textContent = "Copied"; }
+      catch(err){ el("copyfile").textContent = "Select the text below to copy"; }
+      setTimeout(() => { el("copyfile").textContent = "Copy file"; }, 2000);
+    };
+  };
+  if (prev) el("prev").onclick = () => { openProblem(prev.id, true); };
+  if (next) el("next").onclick = () => { openProblem(next.id, true); };
+
+  if (scroll) window.scrollTo(0, 0);
+}
+
+/* =========================================================
+   Running: JavaScript in a worker, Python via Pyodide
+   ========================================================= */
+function same(got, expected, cmp){
+  let a = got, b = expected;
+  if (cmp === "pair"){
+    a = Array.isArray(a) ? [...a].sort((x, y) => x - y) : a;
+    b = Array.isArray(b) ? [...b].sort((x, y) => x - y) : b;
+  }
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+
+function showResults(p, raw){
+  const box = el("results");
+  let passCount = 0;
+  const rows = raw.map((r, i) => {
+    if (r.err){
+      return '<div class="case no"><div class="mark">Test ' + (i + 1) + ' — threw an error</div>' +
+             '<div class="row"><b>input:</b> ' + esc(JSON.stringify(p.tests[i].args).slice(1, -1)) + '</div>' +
+             '<div class="row"><b>error:</b> ' + esc(r.err) + '</div></div>';
+    }
+    const ok = same(r.got, p.tests[i].expected, p.cmp);
+    if (ok) passCount++;
+    return '<div class="case ' + (ok ? "ok" : "no") + '"><div class="mark">Test ' + (i + 1) + (ok ? " passed" : " failed") + '</div>' +
+           '<div class="row"><b>input:</b> ' + esc(JSON.stringify(p.tests[i].args).slice(1, -1)) + '</div>' +
+           '<div class="row"><b>your output:</b> ' + esc(r.got === undefined ? "undefined" : JSON.stringify(r.got)) + '</div>' +
+           (ok ? "" : '<div class="row"><b>expected:</b> ' + esc(JSON.stringify(p.tests[i].expected)) + '</div>') + '</div>';
+  }).join("");
+
+  const all = passCount === p.tests.length;
+  if (all){
+    markSolved(p, lang);
+    renderMeter();
+  }
+  box.innerHTML = '<div class="verdict ' + (all ? "ok" : "no") + '">' +
+    passCount + " of " + p.tests.length + " tests passed" +
+    (all ? " — solved in " + LANGS.find(l => l.id === lang).label + "." : "") + "</div>" + rows;
+}
+
+function runError(msg){
+  el("results").innerHTML = '<div class="verdict no">' + esc(msg) + "</div>";
+}
+function runInfo(html){
+  el("results").innerHTML = '<div class="verdict info">' + html + "</div>";
+}
+
+const WORKER_SRC = [
+"self.onmessage = function(e) {",
+"  var d = e.data, f;",
+"  try {",
+"    f = (new Function(d.code + '\\n;return typeof ' + d.fn + \" === 'function' ? \" + d.fn + ' : undefined;'))();",
+"  } catch (err) { self.postMessage({fatal: 'Your code did not parse: ' + String(err)}); return; }",
+"  if (typeof f !== 'function') { self.postMessage({fatal: 'No function named ' + d.fn + ' was found. Keep the name from the template.'}); return; }",
+"  var out = [];",
+"  for (var i = 0; i < d.tests.length; i++) {",
+"    try { out.push({got: f.apply(null, JSON.parse(JSON.stringify(d.tests[i].args)))}); }",
+"    catch (err) { out.push({err: String(err)}); }",
+"  }",
+"  self.postMessage({results: out});",
+"};"
+].join("\n");
+
+function runJs(p, code){
+  runInfo("Running…");
+  let worker = null;
+  try {
+    worker = new Worker(URL.createObjectURL(new Blob([WORKER_SRC], {type:"text/javascript"})));
+  } catch(e){ worker = null; }
+
+  if (!worker){
+    // Fallback: run on the main thread. An infinite loop will freeze the tab.
+    let f;
+    try {
+      f = (new Function(code + "\n;return typeof " + p.fn + " === 'function' ? " + p.fn + " : undefined;"))();
+    } catch(err){ return runError("Your code did not parse: " + err); }
+    if (typeof f !== "function") return runError("No function named " + p.fn + " was found. Keep the name from the template.");
+    const out = p.tests.map(t => {
+      try { return {got: f.apply(null, JSON.parse(JSON.stringify(t.args)))}; }
+      catch(err){ return {err: String(err)}; }
+    });
+    return showResults(p, out);
+  }
+
+  const timer = setTimeout(() => {
+    worker.terminate();
+    runError("Stopped after 5 seconds. Check for a loop that never advances its pointer.");
+  }, 5000);
+
+  worker.onmessage = ev => {
+    clearTimeout(timer);
+    worker.terminate();
+    if (ev.data.fatal) runError(ev.data.fatal);
+    else showResults(p, ev.data.results);
+  };
+  worker.onerror = () => { clearTimeout(timer); worker.terminate(); runError("The runner crashed before it could finish."); };
+  worker.postMessage({code, fn: p.fn, tests: p.tests});
+}
+
+/* --- Python: Pyodide, loaded only when asked for --- */
+const PY = {state:"off", pyodide:null};
+
+function loadScript(src){
+  return new Promise((res, rej) => {
+    const s = document.createElement("script");
+    s.src = src; s.onload = res; s.onerror = () => rej(new Error("blocked"));
+    document.head.appendChild(s);
+  });
+}
+
+async function enablePython(){
+  if (PY.state === "ready") return true;
+  PY.state = "loading";
+  runInfo("Downloading the Python runtime (about 10 MB). This happens once per page load.");
+  const base = "https://cdn.jsdelivr.net/npm/pyodide@0.26.4/";
+  try {
+    await loadScript(base + "pyodide.js");
+    PY.pyodide = await loadPyodide({indexURL: base});
+    PY.state = "ready";
+    return true;
+  } catch(err){
+    PY.state = "failed";
+    runInfo("The Python runtime could not load here. You can still check your work: open <b>Runnable file</b> below, save it as <code>solution.py</code> and run it locally — it prints PASS or FAIL for every test.");
+    return false;
+  }
+}
+
+async function runPy(p, code){
+  if (PY.state !== "ready"){
+    const ok = await enablePython();
+    if (!ok) return;
+  }
+  runInfo("Running…");
+  const argsJson = JSON.stringify(p.tests.map(t => t.args));
+  const script =
+    code + "\n\n" +
+    "import json as _json\n" +
+    "_sol = Solution()\n" +
+    "_out = []\n" +
+    "for _a in _json.loads(r'''" + argsJson + "'''):\n" +
+    "    try:\n" +
+    "        _r = _sol." + p.fn + "(*_a)\n" +
+    "        _json.dumps(_r)\n" +
+    "        _out.append({'got': _r})\n" +
+    "    except Exception as _e:\n" +
+    "        _out.append({'err': type(_e).__name__ + ': ' + str(_e)})\n" +
+    "_json.dumps(_out)\n";
+  try {
+    const res = PY.pyodide.runPython(script);
+    showResults(p, JSON.parse(res));
+  } catch(err){
+    runError(String(err).split("\n").filter(Boolean).slice(-3).join(" · "));
+  }
+}
+
+function runTests(p, code){
+  if (lang === "js") return runJs(p, code);
+  if (lang === "py") return runPy(p, code);
+  // C++ / Java: no compiler in the browser.
+  const L = LANGS.find(l => l.id === lang);
+  el("results").innerHTML =
+    '<div class="verdict info">' + esc(L.label) + ' needs a compiler, so it runs on your machine rather than here. ' +
+    'Open <b>Runnable file</b> — it wraps your code with all ' + p.tests.length + ' tests and prints PASS or FAIL for each one.</div>';
+  const box = el("filebox");
+  box.classList.remove("hidden");
+  el("filetext").textContent = buildFile(p, lang, code);
+  box.open = true;
+  el("copyfile").onclick = async () => {
+    try { await navigator.clipboard.writeText(el("filetext").textContent); el("copyfile").textContent = "Copied"; }
+    catch(err){ el("copyfile").textContent = "Select the text below to copy"; }
+    setTimeout(() => { el("copyfile").textContent = "Copy file"; }, 2000);
+  };
+}
+
+/* =========================================================
+   Boot
+   ========================================================= */
+renderLangbar();
+renderIndex();
+</script>
+</body>
+</html>
